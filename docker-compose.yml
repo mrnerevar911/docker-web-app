@@ -1,0 +1,39 @@
+version: '3'
+services:
+    nginx:
+        image: ${nginx_version}
+        container_name: ${nginx_container}
+        restart: always
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - ./hosts:/etc/nginx/conf.d
+            - ./www:/var/www
+            - ./logs/nginx:/var/log/nginx
+        links:
+            - ${php_container}
+    php:
+        build: ./images/php
+        container_name: ${php_container}
+        restart: always
+        links:
+            - db
+        volumes:
+            - ./www:/var/www
+    db:
+        image: ${mysql_version}
+        container_name: ${mysql_container}
+        command: --default-authentication-plugin=mysql_native_password
+        restart: always
+        volumes: 
+            - ./mysql:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: ${mysql_root_password}
+
+    adminer:
+        image: adminer
+        container_name: adminer
+        restart: always
+        ports:
+        - 8080:8080
