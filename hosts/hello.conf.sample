@@ -1,0 +1,46 @@
+server {
+    listen              80;
+    server_name         hello.localhost;
+    root                /var/www/hello.dev;
+    access_log          /var/log/nginx/localhost-access.log;
+    error_log           /var/log/nginx/localhost-error.log;
+    index               index.php index.html;
+    rewrite_log         on;
+
+    location ~* ^/core/ {
+        deny            all;
+    }
+    # deny running scripts inside writable directories
+    location ~* /(images|cache|media|logs|tmp)/.*\.(php|pl|py|jsp|asp|sh|cgi)$ {
+        return 403;
+        error_page 403 /403_error.html;
+    }
+    location / {
+        try_files       $uri $uri/ @rewrite;
+    }
+    location /index.html {
+        rewrite         / / permanent;
+    }
+
+    location ~ ^/(.*?)/index\.html$ {
+        rewrite         ^/(.*?)/ // permanent;
+    }
+    location @rewrite {
+        rewrite         ^/(.*)$ /index.php?q=$1;
+    }
+    location ~ \.php$ {
+        include         fastcgi_params;
+        fastcgi_param   SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_pass php:9000;
+    }
+    location ~* ^.+\.(jpg|jpeg|gif|css|png|js|ico|bmp)$ {
+       access_log       off;
+       expires          10d;
+       break;
+    }
+
+    location ~ /\.ht {
+        deny            all;
+    }
+}
