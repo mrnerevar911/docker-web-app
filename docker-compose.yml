@@ -22,7 +22,7 @@ services:
         volumes:
             - ./www:/var/www
     db:
-        platform: linux/x86_64
+        # platform: linux/x86_64 ### uncomment for m1
         image: ${mysql_version}
         container_name: ${mysql_container}
         command: --default-authentication-plugin=mysql_native_password
