@@ -22,6 +22,7 @@ services:
         volumes:
             - ./www:/var/www
     db:
+        platform: linux/x86_64
         image: ${mysql_version}
         container_name: ${mysql_container}
         command: --default-authentication-plugin=mysql_native_password
@@ -30,10 +31,27 @@ services:
             - ./mysql:/var/lib/mysql
         environment:
             MYSQL_ROOT_PASSWORD: ${mysql_root_password}
-
     adminer:
         image: adminer
         container_name: adminer
         restart: always
         ports:
-        - 8080:8080
+            - 8080:8080
+    mongo:
+        image: ${mongodb_version}
+        container_name: ${mongodb_container}
+        restart: always
+        volumes: 
+            - ./mongodb:/data/db
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: ${mongo_root_user}
+            MONGO_INITDB_ROOT_PASSWORD: ${mongo_root_password}
+    mongo-express:
+        image: ${mongo_express_version}
+        container_name: ${mongo_express}
+        restart: always
+        ports:
+            - 8081:8081
+        environment:
+            ME_CONFIG_MONGODB_ADMINUSERNAME: ${mongo_root_user}
+            ME_CONFIG_MONGODB_ADMINPASSWORD: ${mongo_root_password}
