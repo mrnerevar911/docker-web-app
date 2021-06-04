@@ -46,6 +46,7 @@ services:
             - 3306:3306
         volumes: 
             - ./mysql:/var/lib/mysql:delegated
+            - ./config/my.cnf:/etc/mysql/my.cnf
         environment:
             MYSQL_ROOT_PASSWORD: ${mysql_root_password}
     # adminer:
