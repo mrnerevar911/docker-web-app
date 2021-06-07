@@ -1,4 +1,4 @@
-FROM php:7.4-fpm
+FROM php:7.2-fpm
 
 RUN apt-get update && apt-get install -y \
         curl \
@@ -16,7 +16,6 @@ RUN apt-get update && apt-get install -y \
         && pecl install mcrypt-1.0.3 \
 	&& docker-php-ext-enable mcrypt \
         && docker-php-ext-install -j$(nproc) iconv mbstring mysqli pdo_mysql zip soap \
-	&& docker-php-ext-configure gd --with-freetype --with-jpeg \
         && docker-php-ext-install -j$(nproc) gd 
 
 RUN pecl install mongodb \
