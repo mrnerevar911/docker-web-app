@@ -1,19 +1,19 @@
 version: '3'
 services:
-    es:
-        image: docker.elastic.co/elasticsearch/elasticsearch:7.12.1
-        container_name: es
-        environment:
-            - xpack.security.enabled=false
-            - discovery.type=single-node
-        ulimits:
-          memlock:
-            soft: -1
-            hard: -1
-        volumes:
-          - ./elastic:/usr/share/elasticsearch/data:delegated
-        ports:
-          - 9200:9200
+    # es:
+    #     image: docker.elastic.co/elasticsearch/elasticsearch:7.12.1
+    #     container_name: es
+    #     environment:
+    #         - xpack.security.enabled=false
+    #         - discovery.type=single-node
+    #     ulimits:
+    #       memlock:
+    #         soft: -1
+    #         hard: -1
+    #     volumes:
+    #       - ./elastic:/usr/share/elasticsearch/data:delegated
+    #     ports:
+    #       - 9200:9200
     nginx:
         image: ${nginx_version}
         container_name: ${nginx_container}
@@ -36,6 +36,11 @@ services:
         volumes:
             - ./www:/var/www
             - ./images/php/php.ini:/usr/local/etc/php/conf.d/40-custom.ini
+        ports:
+            - 9001
+        environment:
+            XDEBUG_CONFIG: "remote_host=host.docker.internal remote_enable=1 remote_port=9001"
+            PHP_IDE_CONFIG: "serverName=Docker"
     db:
         platform: linux/x86_64
         image: ${mysql_version}
@@ -45,7 +50,7 @@ services:
         restart: always
         ports:
             - 3306:3306
-        volumes: 
+        volumes:
             - ./mysql:/var/lib/mysql:delegated
             - ./config/my.cnf:/etc/mysql/my.cnf
         environment:
@@ -56,11 +61,21 @@ services:
     #     restart: always
     #     ports:
     #         - 8080:8080
+    phpmyadmin:
+        image: phpmyadmin
+        restart: always
+        container_name: phpmyadmin
+        ports:
+            - 8080:8080
+        environment:
+            - PMA_ARBITRARY=1
+            - PMA_ABSOLUTE_URI=http://phpmyadmin.localhost/
+            - PMA_HOST=db
     # mongo:
     #     image: ${mongodb_version}
     #     container_name: ${mongodb_container}
     #     restart: always
-    #     volumes: 
+    #     volumes:
     #         - ./mongodb:/data/db
     #     environment:
     #         MONGO_INITDB_ROOT_USERNAME: ${mongo_root_user}
@@ -74,3 +89,10 @@ services:
     #     environment:
     #         ME_CONFIG_MONGODB_ADMINUSERNAME: ${mongo_root_user}
     #         ME_CONFIG_MONGODB_ADMINPASSWORD: ${mongo_root_password}
+networks:
+    default:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 192.168.22.0/24
