@@ -27,6 +27,8 @@ services:
             - ./logs/nginx:/var/log/nginx
         links:
             - php
+        networks:
+            - sample-network
     php:
         build: ./images/php
         container_name: ${php_container}
@@ -41,6 +43,8 @@ services:
         environment:
             XDEBUG_CONFIG: "remote_host=host.docker.internal remote_enable=1 remote_port=9001"
             PHP_IDE_CONFIG: "serverName=Docker"
+        networks:
+            - sample-network
     db:
         platform: linux/x86_64
         image: ${mysql_version}
@@ -55,6 +59,8 @@ services:
             - ./config/my.cnf:/etc/mysql/my.cnf
         environment:
             MYSQL_ROOT_PASSWORD: ${mysql_root_password}
+        networks:
+            - sample-network
     # adminer:
     #     image: adminer
     #     container_name: adminer
@@ -96,3 +102,5 @@ networks:
             driver: default
             config:
                 - subnet: 192.168.22.0/24
+    sample-network:
+        external: true
